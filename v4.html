@@ -1,0 +1,62 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d0f12"><title>Mobility OS</title><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#0d0f12}body{overflow:hidden}</style></head><body><iframe id="app" src="index.html?v=4"></iframe><script>
+const f=document.getElementById('app');
+f.onload=()=>{
+ const d=f.contentDocument;
+ const css=d.createElement('style');css.textContent=`.visual.rich{height:185px!important;background:#f6f7f5!important;border-color:#3a424b!important}.visual.rich.big{height:300px!important}.visual.rich svg{display:block;width:100%;height:100%}.richLabel{font-family:-apple-system,BlinkMacSystemFont,sans-serif}`;d.head.appendChild(css);
+ const GREEN='#78a83a',INK='#1b2328',SKIN='#d8a27d',SHIRT='#66756e',SHORT='#24292c',GROUND='#aeb7b9',MUTED='#657178';
+ function line(x1,y1,x2,y2,w=9,c=INK){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`}
+ function joint(x,y,r=5,c=SKIN){return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`}
+ function body(p){let z='';z+=`<ellipse cx="${p.h[0]}" cy="${p.h[1]}" rx="8" ry="9" fill="${SKIN}" stroke="${INK}" stroke-width="2"/>`;z+=line(p.s[0],p.s[1],p.hip[0],p.hip[1],14,SHIRT);z+=line(p.s[0]-7,p.s[1]+4,p.s[0]+7,p.s[1]-4,7,SHIRT);z+=line(p.hip[0]-6,p.hip[1]+2,p.hip[0]+6,p.hip[1]-2,9,SHORT);for(const a of [[p.s,p.el],[p.el,p.hand],[p.s,p.er],[p.er,p.handr]])z+=line(a[0][0],a[0][1],a[1][0],a[1][1],6,SKIN);for(const a of [[p.hip,p.kl],[p.kl,p.fl],[p.hip,p.kr],[p.kr,p.fr]])z+=line(a[0][0],a[0][1],a[1][0],a[1][1],8,a[0]===p.hip?SHORT:SKIN);[p.s,p.hip,p.el,p.er,p.kl,p.kr].forEach(q=>z+=joint(q[0],q[1],4,SKIN));return z}
+ function arrow(x1,y1,x2,y2){return `<defs><marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="${GREEN}"/></marker></defs><path d="M${x1} ${y1} Q${(x1+x2)/2} ${Math.min(y1,y2)-12} ${x2} ${y2}" fill="none" stroke="${GREEN}" stroke-width="4" marker-end="url(#arr)"/>`}
+ function frame(start,end,note,extras=''){return `<svg viewBox="0 0 360 185"><rect width="360" height="185" rx="16" fill="#f6f7f5"/><text x="18" y="22" class="richLabel" font-size="11" font-weight="800" fill="${GREEN}">START</text><text x="194" y="22" class="richLabel" font-size="11" font-weight="800" fill="${GREEN}">END</text><line x1="180" y1="16" x2="180" y2="151" stroke="#d8dddd"/><line x1="15" y1="145" x2="345" y2="145" stroke="${GROUND}" stroke-width="2"/>${body(start)}${body(end)}${arrow(155,80,190,80)}${extras}<text x="180" y="169" text-anchor="middle" class="richLabel" font-size="11" font-weight="650" fill="${MUTED}">${note}</text></svg>`}
+ const P={
+ standL:{h:[67,47],s:[67,63],hip:[67,92],el:[53,75],hand:[45,88],er:[82,75],handr:[94,85],kl:[53,116],fl:[42,143],kr:[82,116],fr:[98,143]},
+ standR:{h:[245,47],s:[245,63],hip:[245,92],el:[231,75],hand:[223,88],er:[260,75],handr:[272,85],kl:[231,116],fl:[220,143],kr:[260,116],fr:[276,143]},
+ squatL:{h:[72,69],s:[72,83],hip:[72,108],el:[54,88],hand:[48,103],er:[91,88],handr:[97,103],kl:[48,117],fl:[31,143],kr:[97,117],fr:[114,143]},
+ squatR:{h:[250,72],s:[250,86],hip:[250,111],el:[231,91],hand:[225,106],er:[269,91],handr:[275,106],kl:[226,120],fl:[208,143],kr:[274,120],fr:[292,143]},
+ lungeL:{h:[70,49],s:[70,66],hip:[70,94],el:[53,80],hand:[44,95],er:[87,80],handr:[96,95],kl:[45,116],fl:[27,143],kr:[100,111],fr:[119,143]},
+ lungeR:{h:[248,49],s:[248,66],hip:[248,94],el:[231,80],hand:[222,95],er:[265,80],handr:[274,95],kl:[222,116],fl:[204,143],kr:[278,111],fr:[298,143]},
+ hingeL:{h:[55,68],s:[69,77],hip:[90,91],el:[70,92],hand:[82,104],er:[87,91],handr:[101,102],kl:[76,116],fl:[64,143],kr:[104,116],fr:[117,143]},
+ hingeR:{h:[233,68],s:[247,77],hip:[268,91],el:[248,92],hand:[260,104],er:[265,91],handr:[279,102],kl:[254,116],fl:[242,143],kr:[282,116],fr:[295,143]},
+ kneelL:{h:[71,52],s:[71,68],hip:[71,96],el:[53,80],hand:[43,94],er:[88,80],handr:[98,94],kl:[47,120],fl:[29,143],kr:[99,124],fr:[116,143]},
+ kneelR:{h:[249,52],s:[249,68],hip:[249,96],el:[231,80],hand:[221,94],er:[266,80],handr:[276,94],kl:[225,120],fl:[207,143],kr:[277,124],fr:[294,143]},
+ floorL:{h:[61,91],s:[77,99],hip:[99,108],el:[69,116],hand:[53,132],er:[88,116],handr:[75,134],kl:[89,127],fl:[71,143],kr:[112,126],fr:[130,143]},
+ floorR:{h:[239,91],s:[255,99],hip:[277,108],el:[247,116],hand:[231,132],er:[266,116],handr:[253,134],kl:[267,127],fl:[249,143],kr:[290,126],fr:[308,143]}
+ };
+ function clone(o){return JSON.parse(JSON.stringify(o))}
+ function vis(name){let a,b,note,extra='';
+  switch(name){
+   case 'Knee-to-wall Mobilization': a=clone(P.lungeL);b=clone(P.lungeR);b.kr=[268,108];b.fr=[291,143];extra=`<line x1="325" y1="36" x2="325" y2="145" stroke="#869094" stroke-width="5"/><path d="M279 108 Q300 105 319 96" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Knie kontrolliert zur Wand · Ferse bleibt am Boden';break;
+   case 'Weighted Ankle Rock':a=clone(P.lungeL);b=clone(P.lungeR);extra=`<rect x="268" y="82" width="18" height="12" rx="3" fill="#30363a"/><path d="M279 111 Q295 105 308 94" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Gewicht über das vordere Knie · Ferse unten';break;
+   case 'Deep Squat Hold':a=clone(P.standL);b=clone(P.squatR);extra=`<path d="M250 60 Q250 78 250 91" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Tief sitzen · Brust aufrecht · Fersen am Boden';break;
+   case 'Half-Kneeling Hip Flexor Stretch':a=clone(P.kneelL);b=clone(P.kneelR);b.hip=[255,92];extra=`<path d="M244 98 Q254 93 266 91" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Becken nach vorn · Gesäß der hinteren Seite anspannen';break;
+   case 'Active Hip Flexion Lift':a=clone(P.standL);b=clone(P.standR);b.kr=[246,82];b.fr=[260,101];extra=`<path d="M260 118 Q258 96 248 84" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Knie aktiv anheben · Oberkörper bleibt ruhig';break;
+   case 'Reverse Lunge Reach':a=clone(P.standL);b=clone(P.lungeR);b.handr=[270,28];b.er=[260,50];extra=`<path d="M267 76 Q274 48 271 31" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Schritt zurück · Hüfte öffnen · Arm lang nach oben';break;
+   case '90/90 Hip Switch':a=clone(P.floorL);b=clone(P.floorR);a.kl=[72,120];a.fl=[42,136];a.kr=[113,118];a.fr=[139,136];b.kl=[252,118];b.fl=[225,136];b.kr=[293,120];b.fr=[323,136];extra=`<path d="M142 118 Q180 92 218 118" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Beide Knie kontrolliert von Seite zu Seite führen';break;
+   case '90/90 Forward Fold':a=clone(P.floorL);b=clone(P.floorR);b.h=[231,111];b.s=[247,113];b.el=[231,125];b.hand=[218,139];b.er=[258,125];b.handr=[247,140];extra=`<path d="M256 89 Q245 103 238 112" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Aus der Hüfte über das vordere Bein nach vorn';break;
+   case 'Cossack Squat':a=clone(P.standL);b=clone(P.squatR);b.kl=[222,118];b.fl=[205,143];b.kr=[297,129];b.fr=[329,143];extra=`<path d="M272 88 Q252 104 231 114" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Gewicht auf eine Seite · anderes Bein lang';break;
+   case 'Hamstring Hinge Stretch':a=clone(P.standL);b=clone(P.hingeR);extra=`<path d="M251 64 Q259 75 268 88" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Hüfte nach hinten · Rücken lang · Bein fast gestreckt';break;
+   case 'Active Straight-Leg Raise':a=clone(P.floorL);b=clone(P.floorR);b.kr=[261,72];b.fr=[257,36];extra=`<path d="M291 119 Q273 79 259 43" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Gestrecktes Bein aktiv anheben · Becken bleibt ruhig';break;
+   case 'Slow RDL Reach':a=clone(P.standL);b=clone(P.hingeR);b.kr=[299,102];b.fr=[329,88];extra=`<path d="M278 96 Q300 91 323 88" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Einbeiniger Hinge · lang vom Kopf bis zur Ferse';break;
+   case 'Open Book Rotation':a=clone(P.floorL);b=clone(P.floorR);b.handr=[292,64];b.er=[274,82];extra=`<path d="M264 114 Q286 96 293 70" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Knie zusammen · Brustkorb öffnen · Arm nach hinten';break;
+   case 'Quadruped T-Spine Rotation':a=clone(P.floorL);b=clone(P.floorR);b.handr=[279,58];b.er=[268,79];extra=`<path d="M261 107 Q276 86 280 64" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Aus dem Vierfüßler Brustkorb aufdrehen';break;
+   case 'Overhead Squat Reach':a=clone(P.squatL);b=clone(P.squatR);b.hand=[223,42];b.el=[232,62];b.handr=[278,42];b.er=[268,62];extra=`<path d="M250 80 Q250 60 250 44" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Tiefer Squat · Arme aktiv über Kopf';break;
+   case 'Lat / Shoulder Flexion Stretch':a=clone(P.standL);b=clone(P.hingeR);b.hand=[219,68];b.el=[234,72];b.handr=[220,82];b.er=[238,83];extra=`<line x1="210" y1="38" x2="210" y2="145" stroke="#869094" stroke-width="5"/>`;note='Hände an Wand · Brust Richtung Boden sinken lassen';break;
+   case 'Wall Slide':a=clone(P.standL);b=clone(P.standR);b.el=[224,65];b.hand=[224,40];b.er=[266,65];b.handr=[266,40];extra=`<line x1="289" y1="30" x2="289" y2="145" stroke="#869094" stroke-width="5"/>`;note='Rücken an Wand · Arme langsam nach oben gleiten';break;
+   case 'Overhead Reach Hold':a=clone(P.standL);b=clone(P.standR);b.el=[238,43];b.hand=[235,24];b.er=[252,43];b.handr=[255,24];extra=`<path d="M245 62 Q245 45 245 28" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Rippen unten · Arme lang über Kopf halten';break;
+   case 'Sleeper / Rotation Stretch':a=clone(P.floorL);b=clone(P.floorR);b.el=[251,113];b.hand=[272,104];extra=`<path d="M252 117 Q265 113 273 105" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Schulter stabil · Unterarm sanft Richtung Boden';break;
+   case 'Controlled Shoulder Rotation':a=clone(P.standL);b=clone(P.standR);b.el=[270,67];b.hand=[280,47];extra=`<path d="M259 56 Q280 58 282 45" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Oberarm ruhig · Unterarm kontrolliert rotieren';break;
+   case 'Front Rack Mobility Hold':a=clone(P.standL);b=clone(P.standR);b.el=[267,59];b.hand=[249,57];extra=`<line x1="217" y1="57" x2="286" y2="57" stroke="#30363a" stroke-width="5"/>`;note='Ellbogen hoch · Brust aufrecht · Handgelenke entspannt';break;
+   case 'Wrist Extension Stretch':a=clone(P.kneelL);b=clone(P.kneelR);b.hand=[219,139];b.handr=[244,139];extra=`<path d="M221 133 Q231 140 242 133" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Handflächen flach · Gewicht langsam nach vorn';break;
+   case 'Wrist Rock':a=clone(P.floorL);b=clone(P.floorR);extra=`<path d="M247 125 Q259 121 268 116" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Im Vierfüßler sanft vor und zurück schaukeln';break;
+   case 'Quadruped Wrist Load':a=clone(P.floorL);b=clone(P.floorR);b.s=[258,94];b.hip=[278,104];extra=`<path d="M267 101 Q254 106 243 116" fill="none" stroke="${GREEN}" stroke-width="4"/>`;note='Schultern kontrolliert über die Hände bringen';break;
+   default:a=clone(P.standL);b=clone(P.standR);note='Bewegung kontrolliert und ohne Schmerz ausführen';
+  }return frame(a,b,note,extra)}
+ function cleanTitle(t){return t.replace(/^\s*\d+\.\s*/,'').replace(/\s*·\s*(Links|Rechts)\s*$/i,'').trim()}
+ function enhance(){
+   d.querySelectorAll('.exercise').forEach(ex=>{const title=ex.querySelector('.title,.exerciseTitle');const box=ex.querySelector('.visual');if(!title||!box)return;const name=cleanTitle(title.textContent);const key=name+'|list';if(box.dataset.richKey===key)return;box.dataset.richKey=key;box.classList.add('rich');box.innerHTML=vis(name)});
+   const cur=d.getElementById('cur')||d.getElementById('timerExercise');const box=d.getElementById('curVisual')||d.getElementById('timerVisual');if(cur&&box&&cur.textContent.trim()){const name=cleanTitle(cur.textContent);const key=name+'|timer';if(box.dataset.richKey!==key){box.dataset.richKey=key;box.classList.add('rich','big');box.innerHTML=vis(name)}}
+ }
+ enhance();new MutationObserver(enhance).observe(d.body,{childList:true,subtree:true,characterData:true});setInterval(enhance,500);
+}
+</script></body></html>
