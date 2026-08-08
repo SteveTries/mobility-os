@@ -97,7 +97,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
       <h2 style="margin-top:6px">Wie viel Zeit hast du?</h2>
       <div class="timeRow" id="timeRow"></div>
       <button class="primary" onclick="buildToday()">Training erstellen</button>
-      <div class="note">Kurze Sessions priorisieren den aktuell größten Bedarf. Längere Sessions decken den ganzen Körper ab.</div>
+      <div class="note">Kurze Sessions priorisieren den aktuell größten Bedarf. Übungen dauern normalerweise etwa 1 Minute und nie länger als 2 Minuten.</div>
     </div>
 
     <div class="card">
@@ -264,32 +264,41 @@ function renderHome(){
 function buildToday(){
  const mins=state.selectedTime, p=priorities();
  const keys=AREAS.map(a=>a[0]).sort((a,b)=>p[b]-p[a]);
- let slots = mins<=5 ? 4 : mins<=10 ? 6 : 8;
- let selected=[];
- if(mins>=15) selected=keys.slice(0,8);
- else selected=keys.slice(0,slots);
- let weights=selected.map(k=>p[k]), sum=weights.reduce((a,b)=>a+b,0);
- let totalSec=mins*60, plan=[];
- selected.forEach((k,idx)=>{
+ const totalSec=mins*60;
+ const targetBlockSec=60;
+ const blockCount=Math.ceil(totalSec/targetBlockSec);
+ const assigned=Object.fromEntries(keys.map(k=>[k,0]));
+ const plan=[];
+
+ // Build short blocks (normally 60 sec, hard cap 120 sec) and keep rotating areas.
+ for(let i=0;i<blockCount;i++){
+   let candidates=keys.slice();
+   if(i>0 && candidates.length>1){
+     const lastArea=plan[plan.length-1].area;
+     candidates=candidates.filter(k=>k!==lastArea);
+   }
+   // For longer sessions, ensure every area appears before repeats dominate.
+   let k;
+   const uncovered=candidates.filter(x=>assigned[x]===0);
+   if(i<Math.min(keys.length,blockCount) && uncovered.length){
+     k=uncovered.sort((a,b)=>p[b]-p[a])[0];
+   } else {
+     k=candidates.sort((a,b)=>(p[b]*blockCount-assigned[b])-(p[a]*blockCount-assigned[a]))[0];
+   }
+
    const areaName=AREAS.find(a=>a[0]===k)[1];
    const exs=EXERCISES[k];
-   const histCount=state.history.reduce((c,s)=>c+(s.exerciseNames||[]).filter(x=>exs.some(e=>e[0]===x)).length,0);
-   const ex=exs[histCount%exs.length];
-   let sec=Math.max(35,Math.round(totalSec*(weights[idx]/sum)));
+   const pastUses=state.history.reduce((c,s)=>c+(s.exerciseNames||[]).filter(x=>exs.some(e=>e[0]===x)).length,0);
+   const ex=exs[(pastUses+assigned[k])%exs.length];
+   const remaining=totalSec-i*targetBlockSec;
+   const sec=Math.min(120,Math.max(30,Math.min(targetBlockSec,remaining)));
    plan.push({area:k,areaName,name:ex[0],type:ex[1],seconds:sec});
- });
- let used=plan.reduce((a,b)=>a+b.seconds,0);
- let diff=totalSec-used;
- let i=0;
- while(diff!==0 && plan.length){
-   const step=diff>0?1:-1;
-   if(plan[i%plan.length].seconds+step>=30){ plan[i%plan.length].seconds+=step; diff-=step; }
-   i++;
+   assigned[k]++;
  }
+
  state.currentSession={minutes:mins, plan};
  renderSession(); showScreen("session");
 }
-
 function renderSession(){
  const s=state.currentSession; if(!s)return;
  document.getElementById("sessionTitle").textContent=`${s.minutes} Minuten · Full Body`;
