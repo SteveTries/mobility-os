@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0d0f12"/>
+<title>Mobility OS</title>
+<style>
+:root{
+  --bg:#0d0f12; --panel:#15191f; --panel2:#1b2028; --text:#f6f7f9; --muted:#9aa4b2;
+  --line:#2a313b; --accent:#d9ff55; --danger:#ff836c; --good:#8be28b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+body{min-height:100vh}
+button,input{font:inherit}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom))}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.brand{font-weight:800;letter-spacing:.08em;font-size:13px}
+.badge{font-size:12px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.hero{padding:22px}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+h1{font-size:32px;line-height:1.05;margin:8px 0 10px}
+h2{font-size:21px;margin:0 0 12px}
+p{color:var(--muted);line-height:1.45;margin:8px 0}
+.scoreRow{display:flex;gap:12px;align-items:flex-end;margin-top:18px}
+.bigScore{font-size:52px;font-weight:800;letter-spacing:-.04em}
+.smallMuted{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:13px}
+.metricTop{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.metric strong{font-size:18px}
+.bar{height:7px;background:#282f38;border-radius:10px;overflow:hidden;margin-top:10px}
+.bar span{display:block;height:100%;background:var(--accent);border-radius:10px}
+.timeRow{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.timeBtn,.primary,.secondary,.ghost{border:none;border-radius:16px;padding:14px 12px;font-weight:750;cursor:pointer}
+.timeBtn{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.timeBtn.active{background:var(--accent);color:#111;border-color:var(--accent)}
+.primary{width:100%;background:var(--accent);color:#101214;margin-top:12px}
+.secondary{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);margin-top:10px}
+.ghost{background:transparent;color:var(--muted);padding:8px 0}
+.nav{position:sticky;bottom:10px;background:rgba(21,25,31,.94);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:18px;padding:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:18px}
+.nav button{background:transparent;border:0;color:var(--muted);padding:10px 8px;border-radius:12px}
+.nav button.active{background:var(--panel2);color:var(--text)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.assess{margin-bottom:15px}
+.assess label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:7px}
+.assess input[type=range]{width:100%;accent-color:var(--accent)}
+.exercise{padding:14px 0;border-bottom:1px solid var(--line)}
+.exercise:last-child{border-bottom:0}
+.exerciseTitle{font-weight:760}
+.exerciseMeta{font-size:13px;color:var(--muted);margin-top:4px}
+.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:11px;color:var(--muted);margin-right:6px;margin-top:6px}
+.focus{color:var(--accent);font-weight:700}
+.historyItem{padding:13px 0;border-bottom:1px solid var(--line)}
+.historyItem:last-child{border-bottom:0}
+.screen{display:none}
+.screen.active{display:block}
+.timerWrap{text-align:center;padding:28px 10px}
+.timer{font-size:64px;font-weight:800;letter-spacing:-.05em;margin:18px 0}
+.currentEx{font-size:24px;font-weight:800}
+.progressLine{height:8px;background:#282f38;border-radius:20px;overflow:hidden;margin:18px 0}
+.progressLine span{display:block;height:100%;background:var(--accent)}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">MOBILITY OS</div>
+    <div class="badge">LOCAL · PRIVATE</div>
+  </div>
+
+  <section id="home" class="screen active">
+    <div class="card hero">
+      <div class="kicker">Today</div>
+      <h1>Move better.<br/>Train better.</h1>
+      <p>Full-body mobility, automatisch gewichtet nach deinen Defiziten und deiner Trainingshistorie.</p>
+      <div class="scoreRow">
+        <div class="bigScore" id="overallScore">–</div>
+        <div class="smallMuted">Mobility<br/>Score</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><h2>Dein Profil</h2><button class="ghost" onclick="showScreen('assessment')">Anpassen</button></div>
+      <div id="profileGrid" class="grid"></div>
+    </div>
+
+    <div class="card">
+      <div class="kicker">Session erstellen</div>
+      <h2 style="margin-top:6px">Wie viel Zeit hast du?</h2>
+      <div class="timeRow" id="timeRow"></div>
+      <button class="primary" onclick="buildToday()">Training erstellen</button>
+      <div class="note">Kurze Sessions priorisieren den aktuell größten Bedarf. Längere Sessions decken den ganzen Körper ab.</div>
+    </div>
+
+    <div class="card">
+      <div class="row"><h2>Aktueller Fokus</h2><span class="smallMuted">History-adjusted</span></div>
+      <div id="focusList"></div>
+    </div>
+  </section>
+
+  <section id="assessment" class="screen">
+    <div class="card">
+      <div class="kicker">Assessment</div>
+      <h1 style="font-size:28px">Dein Mobility-Profil</h1>
+      <p>Für den MVP bewertest du jeden Bereich selbst von 30 bis 100. Später können wir daraus standardisierte Tests machen.</p>
+      <div id="assessmentForm"></div>
+      <button class="primary" onclick="saveAssessment()">Speichern</button>
+    </div>
+  </section>
+
+  <section id="session" class="screen">
+    <div class="card">
+      <div class="row"><div><div class="kicker">Today's session</div><h2 id="sessionTitle" style="margin-top:5px">–</h2></div><button class="ghost" onclick="showScreen('home')">Zurück</button></div>
+      <div id="sessionPlan"></div>
+      <button class="primary" onclick="startSession()">Session starten</button>
+      <button class="secondary" onclick="completeSession(false)">Als erledigt speichern</button>
+    </div>
+  </section>
+
+  <section id="timer" class="screen">
+    <div class="card timerWrap">
+      <div class="kicker">Guided session</div>
+      <div class="currentEx" id="timerExercise">–</div>
+      <div class="exerciseMeta" id="timerMeta"></div>
+      <div class="timer" id="timerClock">00:00</div>
+      <div class="progressLine"><span id="timerProgress" style="width:0%"></span></div>
+      <button class="primary" id="timerBtn" onclick="toggleTimer()">Start</button>
+      <button class="secondary" onclick="skipExercise()">Übung überspringen</button>
+    </div>
+  </section>
+
+  <section id="history" class="screen">
+    <div class="card">
+      <div class="row"><h2>Historie</h2><button class="ghost" onclick="clearHistory()">Zurücksetzen</button></div>
+      <div id="historyList"></div>
+    </div>
+  </section>
+
+  <div class="nav">
+    <button id="nav-home" class="active" onclick="showScreen('home')">Heute</button>
+    <button id="nav-assessment" onclick="showScreen('assessment')">Profil</button>
+    <button id="nav-history" onclick="showScreen('history')">Historie</button>
+  </div>
+</div>
+
+<script>
+const AREAS = [
+  ["ankle","Ankle Dorsiflexion"],
+  ["hipFlex","Hip Flexion"],
+  ["hipRot","Hip Rotation"],
+  ["hamstrings","Hamstrings"],
+  ["tspine","T-Spine"],
+  ["shoulderFlex","Shoulder Flexion"],
+  ["shoulderRot","Shoulder Rotation"],
+  ["wrist","Wrist Mobility"]
+];
+
+const EXERCISES = {
+ ankle:[
+  ["Knee-to-wall Mobilization","range",45],["Weighted Ankle Rock","control",50],["Deep Squat Hold","integration",60]
+ ],
+ hipFlex:[
+  ["Half-Kneeling Hip Flexor Stretch","range",45],["Active Hip Flexion Lift","control",40],["Reverse Lunge Reach","integration",50]
+ ],
+ hipRot:[
+  ["90/90 Hip Switch","control",50],["90/90 Forward Fold","range",45],["Cossack Squat","integration",55]
+ ],
+ hamstrings:[
+  ["Hamstring Hinge Stretch","range",45],["Active Straight-Leg Raise","control",40],["Slow RDL Reach","integration",50]
+ ],
+ tspine:[
+  ["Open Book Rotation","range",45],["Quadruped T-Spine Rotation","control",45],["Overhead Squat Reach","integration",55]
+ ],
+ shoulderFlex:[
+  ["Lat / Shoulder Flexion Stretch","range",45],["Wall Slide","control",45],["Overhead Reach Hold","integration",50]
+ ],
+ shoulderRot:[
+  ["Sleeper / Rotation Stretch","range",45],["Controlled Shoulder Rotation","control",45],["Front Rack Mobility Hold","integration",50]
+ ],
+ wrist:[
+  ["Wrist Extension Stretch","range",40],["Wrist Rock","control",40],["Quadruped Wrist Load","integration",45]
+ ]
+};
+
+const defaults = Object.fromEntries(AREAS.map(([k])=>[k,70]));
+let state = {
+ assessment: JSON.parse(localStorage.getItem("mos_assessment") || JSON.stringify(defaults)),
+ history: JSON.parse(localStorage.getItem("mos_history") || "[]"),
+ selectedTime: 15,
+ currentSession: null,
+ timerIndex:0, remaining:0, running:false, timerId:null
+};
+
+function showScreen(id){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ ["home","assessment","history"].forEach(n=>document.getElementById("nav-"+n)?.classList.toggle("active",n===id));
+ if(id==="history") renderHistory();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function init(){
+ const times=[5,10,15,20,30,45];
+ document.getElementById("timeRow").innerHTML=times.map(t=>`<button class="timeBtn ${t===state.selectedTime?'active':''}" onclick="selectTime(${t})">${t} min</button>`).join("");
+ document.getElementById("assessmentForm").innerHTML=AREAS.map(([k,n])=>`
+   <div class="assess"><label><span>${n}</span><strong id="val-${k}">${state.assessment[k]}</strong></label>
+   <input type="range" min="30" max="100" value="${state.assessment[k]}" oninput="document.getElementById('val-${k}').textContent=this.value" id="rng-${k}"></div>`).join("");
+ renderHome();
+}
+
+function selectTime(t){ state.selectedTime=t; init(); }
+
+function saveAssessment(){
+ AREAS.forEach(([k])=>state.assessment[k]=+document.getElementById("rng-"+k).value);
+ localStorage.setItem("mos_assessment",JSON.stringify(state.assessment));
+ renderHome(); showScreen("home");
+}
+
+function decayedExposure(){
+ const now=Date.now(), out=Object.fromEntries(AREAS.map(([k])=>[k,0]));
+ state.history.forEach(s=>{
+   const ageDays=(now-s.ts)/86400000;
+   const decay=Math.exp(-ageDays/7);
+   Object.entries(s.minutesByArea||{}).forEach(([k,m])=>out[k]=(out[k]||0)+m*decay);
+ });
+ return out;
+}
+
+function priorities(){
+ const exp=decayedExposure();
+ let raw={};
+ AREAS.forEach(([k])=>{
+   const deficit=(100-state.assessment[k])/70;
+   const target=0.8+1.6*deficit;
+   const debt=Math.max(0,target*5-(exp[k]||0))/5;
+   raw[k]=0.55*deficit+0.45*debt+0.08;
+ });
+ const sum=Object.values(raw).reduce((a,b)=>a+b,0);
+ return Object.fromEntries(Object.entries(raw).map(([k,v])=>[k,v/sum]));
+}
+
+function renderHome(){
+ const vals=Object.values(state.assessment);
+ const overall=Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+ document.getElementById("overallScore").textContent=overall;
+ document.getElementById("profileGrid").innerHTML=AREAS.map(([k,n])=>`
+  <div class="metric"><div class="metricTop"><span>${n}</span><strong>${state.assessment[k]}</strong></div>
+  <div class="bar"><span style="width:${state.assessment[k]}%"></span></div></div>`).join("");
+ const p=priorities();
+ const ranked=AREAS.slice().sort((a,b)=>p[b[0]]-p[a[0]]).slice(0,4);
+ document.getElementById("focusList").innerHTML=ranked.map(([k,n],i)=>`
+  <div class="exercise"><div class="row"><div class="exerciseTitle">${n}</div><div class="${i<2?'focus':''}">${Math.round(p[k]*100)}%</div></div>
+  <div class="exerciseMeta">${i===0?'Höchster aktueller Bedarf':i===1?'Hohe Priorität':'Mit abdecken'}</div></div>`).join("");
+}
+
+function buildToday(){
+ const mins=state.selectedTime, p=priorities();
+ const keys=AREAS.map(a=>a[0]).sort((a,b)=>p[b]-p[a]);
+ let slots = mins<=5 ? 4 : mins<=10 ? 6 : 8;
+ let selected=[];
+ if(mins>=15) selected=keys.slice(0,8);
+ else selected=keys.slice(0,slots);
+ let weights=selected.map(k=>p[k]), sum=weights.reduce((a,b)=>a+b,0);
+ let totalSec=mins*60, plan=[];
+ selected.forEach((k,idx)=>{
+   const areaName=AREAS.find(a=>a[0]===k)[1];
+   const exs=EXERCISES[k];
+   const histCount=state.history.reduce((c,s)=>c+(s.exerciseNames||[]).filter(x=>exs.some(e=>e[0]===x)).length,0);
+   const ex=exs[histCount%exs.length];
+   let sec=Math.max(35,Math.round(totalSec*(weights[idx]/sum)));
+   plan.push({area:k,areaName,name:ex[0],type:ex[1],seconds:sec});
+ });
+ let used=plan.reduce((a,b)=>a+b.seconds,0);
+ let diff=totalSec-used;
+ let i=0;
+ while(diff!==0 && plan.length){
+   const step=diff>0?1:-1;
+   if(plan[i%plan.length].seconds+step>=30){ plan[i%plan.length].seconds+=step; diff-=step; }
+   i++;
+ }
+ state.currentSession={minutes:mins, plan};
+ renderSession(); showScreen("session");
+}
+
+function renderSession(){
+ const s=state.currentSession; if(!s)return;
+ document.getElementById("sessionTitle").textContent=`${s.minutes} Minuten · Full Body`;
+ document.getElementById("sessionPlan").innerHTML=s.plan.map((e,i)=>`
+  <div class="exercise"><div class="row"><div><div class="exerciseTitle">${i+1}. ${e.name}</div><div class="exerciseMeta">${e.areaName} · ${Math.round(e.seconds/60*10)/10} min</div></div><span class="pill">${e.type}</span></div></div>`).join("");
+}
+
+function completeSession(fromTimer){
+ const s=state.currentSession; if(!s)return;
+ const minutesByArea={};
+ s.plan.forEach(e=>minutesByArea[e.area]=(minutesByArea[e.area]||0)+e.seconds/60);
+ state.history.unshift({
+   ts:Date.now(), totalMinutes:s.minutes, minutesByArea,
+   exerciseNames:s.plan.map(e=>e.name)
+ });
+ state.history=state.history.slice(0,60);
+ localStorage.setItem("mos_history",JSON.stringify(state.history));
+ state.currentSession=null;
+ renderHome(); renderHistory(); showScreen("home");
+ if(fromTimer) alert("Session gespeichert.");
+}
+
+function startSession(){
+ state.timerIndex=0; state.running=false;
+ prepareTimerExercise(); showScreen("timer");
+}
+function prepareTimerExercise(){
+ const e=state.currentSession.plan[state.timerIndex];
+ state.remaining=e.seconds;
+ document.getElementById("timerExercise").textContent=e.name;
+ document.getElementById("timerMeta").textContent=`${e.areaName} · ${e.type}`;
+ document.getElementById("timerBtn").textContent="Start";
+ updateClock();
+}
+function updateClock(){
+ const m=Math.floor(state.remaining/60), s=state.remaining%60;
+ document.getElementById("timerClock").textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+ const total=state.currentSession.plan[state.timerIndex].seconds;
+ document.getElementById("timerProgress").style.width=`${100*(1-state.remaining/total)}%`;
+}
+function toggleTimer(){
+ state.running=!state.running;
+ document.getElementById("timerBtn").textContent=state.running?"Pause":"Weiter";
+ clearInterval(state.timerId);
+ if(state.running){
+   state.timerId=setInterval(()=>{
+     state.remaining--; updateClock();
+     if(state.remaining<=0){ clearInterval(state.timerId); state.running=false; nextExercise(); }
+   },1000);
+ }
+}
+function nextExercise(){
+ state.timerIndex++;
+ if(state.timerIndex>=state.currentSession.plan.length){ completeSession(true); return; }
+ prepareTimerExercise();
+}
+function skipExercise(){ clearInterval(state.timerId); state.running=false; nextExercise(); }
+
+function renderHistory(){
+ const el=document.getElementById("historyList");
+ if(!state.history.length){ el.innerHTML='<div class="empty">Noch keine Sessions gespeichert.</div>'; return; }
+ el.innerHTML=state.history.map(s=>{
+   const d=new Date(s.ts);
+   const top=Object.entries(s.minutesByArea||{}).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>AREAS.find(a=>a[0]===k)?.[1]).join(" · ");
+   return `<div class="historyItem"><div class="row"><strong>${s.totalMinutes} min</strong><span class="smallMuted">${d.toLocaleDateString("de-DE")}</span></div><div class="exerciseMeta">${top||"Full Body"}</div></div>`
+ }).join("");
+}
+function clearHistory(){
+ if(confirm("Trainingshistorie wirklich löschen?")){
+   state.history=[]; localStorage.setItem("mos_history","[]"); renderHistory(); renderHome();
+ }
+}
+init();
+</script>
+</body>
+</html>
